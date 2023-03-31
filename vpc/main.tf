@@ -23,6 +23,7 @@ resource "aws_subnet" "subnet1" {
 
 }
 
+
 resource "aws_subnet" "subnet2" {
     vpc_id = aws_vpc.tfvpc.id
     cidr_block = "10.0.16.0/20"
@@ -31,3 +32,7 @@ resource "aws_subnet" "subnet2" {
     }
 
 }
+
+# resource "aws_internet_gateway" "tfIGW" {
+    
+# }
