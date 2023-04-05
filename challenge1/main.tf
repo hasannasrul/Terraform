@@ -2,46 +2,62 @@ provider "aws" {
     region = "us-east-1"
 }
 
-# 1. create a ec2 server and output the private ip 
-# 2. Create a webserver and ensure it has fixed public ip address
-# 3. run server-script.sh inside instance
-resource "aws_instance" "web_server" {
-    ami = "ami-016eb5d644c333ccb"
+resource "aws_instance" "server" {
+    ami = "ami-00c39f71452c08778"
     instance_type = "t2.micro"
-    security_groups = [aws_security_group.sg_ws01.name]
+    security_groups = [aws_security_group.sg.name]
+    user_data = file("./server-script.sh") 
     tags = {
-        Name = "web_server"
+        Name = "server"
     }
-    user_data = file("server-script.sh")
 }
 
-resource "aws_eip" "ws01-eip" {
-    instance = aws_instance.web_server.id
+resource "aws_eip" "eip" {
+    instance =  aws_instance.server.id
 }
 
-output "ws01_eip" {
-    value = aws_eip.ws01-eip.public_ip
+variable "ingress" {
+  type        = list(number)
+  default     = [80,443]
+  description = "security group ports"
 }
 
-output "prvt_ip" {
-    value = aws_instance.web_server.private_ip
+variable "egress" {
+  type        = list(number)
+  default     = [80,443]
+  description = "security group ports"
 }
 
-# 4. create a security group for the webserver opening ports 80 and 443
+resource "aws_security_group" "sg" {
+    name = "Allow web traffic"
 
-resource "aws_security_group" "sg_ws01" {
-    name = "sg_for_webserver"
-    ingress {
-        from_port        = 443
-        to_port          = 443
-        protocol         = "tcp"
+    dynamic "ingress" {
+        iterator = port
+        for_each = var.ingress
+        content {
+            from_port = port.value
+            to_port = port.value
+            protocol = "TCP"
+            cidr_blocks = ["0.0.0.0/0"] 
+        }
     }
-    ingress {
-        from_port        = 80
-        to_port          = 80
-        protocol         = "tcp"
+
+    dynamic "egress" {
+        iterator = port
+        for_each = var.egress
+        content {
+            from_port = port.value
+            to_port = port.value
+            protocol = "TCP"
+            cidr_blocks = ["0.0.0.0/0"] 
+        }
     }
-    tags = {
-        Name = "sg_ws01"
-    }
+}
+
+output "Private_IP" {
+    value = aws_instance.server.private_ip
+}
+
+output "Public_IP" {
+    value =  aws_eip.eip.public_ip
 }
