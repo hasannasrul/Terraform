@@ -64,7 +64,7 @@ resource "aws_vpc" "my-vpc" {
     
 }
 
-# output variables
+#output variables
 output "vpcid" {
   value       = aws_vpc.my-vpc.id
 }
