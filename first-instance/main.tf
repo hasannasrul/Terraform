@@ -8,6 +8,7 @@ resource "aws_instance" "first-tf-instance" {
     tags = {
         Name: "TF-instance"
     }
+    key_name = "python-devops"
     user_data = <<-EOF
                 #!/bin/bash
                 sudo apt update -y
