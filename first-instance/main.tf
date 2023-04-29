@@ -11,9 +11,9 @@ resource "aws_instance" "first-tf-instance" {
     key_name = "python-devops"
     user_data = <<-EOF
                 #!/bin/bash
-                sudo apt update -y
-                sudo apt install apache2 -y
-                sudo systemctl start apache2
-                sudo bash -c 'echo your very first web server > /var/www/html/index.html'
+                sudo apt-get update
+                sudo apt-get install docker.io -y
+                sudo systemctl start docker
+                sudo systemctl enable docker
                 EOF
 }
